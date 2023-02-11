@@ -1,6 +1,8 @@
 # Telescope artisan
 
-This plugin adds a Laravel Artisan picker to the [Telescope plugin](https://github.com/nvim-telescope/telescope.nvim) for Neovim.
+An extension for [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) that allows you to search Laravel Artisan commands.
+
+![Screenshot](./screenshot.png)
 
 ## Requirements
 
@@ -34,3 +36,11 @@ or
 ```vim
 :Telescope artisan
 ```
+
+## Default Mappings
+| Mappings | Action            |
+|:---------|:------------------|
+| `<CR>`   | Prompt for additional arguments and then execute command |
+| `<C-e>`  | Execute command in insert mode |
+| `e`      | Execute command in normal mode |
+
