@@ -48,6 +48,12 @@ return function(opts)
     end
   end
 
+  local function runInTerminal(command)
+    vim.cmd('botright new')
+    vim.cmd('terminal php artisan ' .. command)
+    vim.cmd('startinsert')
+  end
+
   pickers
     .new(opts, {
       prompt_title = 'Laravel Artisan',
@@ -106,7 +112,7 @@ return function(opts)
         local execute_cmd = function()
           local selection = action_state.get_selected_entry()
           actions.close(bufnr)
-          vim.cmd('!php artisan ' .. selection.value.command)
+          runInTerminal(selection.value.command)
           return true
         end
 
@@ -122,7 +128,7 @@ return function(opts)
             function(msg)
               msg = msg or ''
 
-              vim.cmd('!php artisan ' .. selection.value.command .. ' ' .. msg)
+              runInTerminal(selection.value.command .. ' ' .. msg)
             end
           )
         end)
