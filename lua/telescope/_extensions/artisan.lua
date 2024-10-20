@@ -4,10 +4,12 @@ if not has_telescope then
   return
 end
 
-local artisan = require('artisan')
+local artisan = require('artisan.artisan')
+local config = require('artisan.config')
 
 return telescope.register_extension({
+  setup = config.setup,
   exports = {
-    artisan = artisan,
+    artisan = artisan.run,
   },
 })

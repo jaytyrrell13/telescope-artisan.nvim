@@ -7,6 +7,9 @@ local previewers = require('telescope.previewers')
 local action_state = require('telescope.actions.state')
 local entry_display = require('telescope.pickers.entry_display')
 local Path = require('plenary.path')
+local config = require('artisan.config')
+
+local M = {}
 
 local displayer = entry_display.create({
   separator = ' ',
@@ -23,9 +26,21 @@ local make_display = function(entry)
   })
 end
 
-return function(opts)
-  opts = opts or {}
+local function runInTerminal(command)
+  vim.cmd('botright new')
+  vim.cmd('terminal php artisan ' .. command)
+  vim.cmd('startinsert')
+end
 
+local runCommand = function(command)
+  if config.opts.strategy == 'neovim' then
+    runInTerminal(command)
+  else
+    vim.notify('Unknown strategy "' .. config.opts.strategy .. '" for telescope-artisan.nvim', vim.log.levels.WARN)
+  end
+end
+
+M.run = function(opts)
   local cwd = vim.fn.getcwd()
   local artisan_path = Path:new(cwd, 'artisan')
   if not artisan_path:exists() then
@@ -46,12 +61,6 @@ return function(opts)
         options = cmd.definition.options,
       })
     end
-  end
-
-  local function runInTerminal(command)
-    vim.cmd('botright new')
-    vim.cmd('terminal php artisan ' .. command)
-    vim.cmd('startinsert')
   end
 
   pickers
@@ -78,8 +87,7 @@ return function(opts)
             table.insert(preview, usage)
           end
 
-          -- If arguments is not an empty table
-          if next(entry.value.arguments) then
+          if vim.tbl_isempty(entry.value.arguments) then
             table.insert(preview, '')
             table.insert(preview, 'Arguments')
 
@@ -112,7 +120,9 @@ return function(opts)
         local execute_cmd = function()
           local selection = action_state.get_selected_entry()
           actions.close(bufnr)
-          runInTerminal(selection.value.command)
+
+          runCommand(selection.value.command)
+
           return true
         end
 
@@ -128,7 +138,7 @@ return function(opts)
             function(msg)
               msg = msg or ''
 
-              runInTerminal(selection.value.command .. ' ' .. msg)
+              runCommand(selection.value.command .. ' ' .. msg)
             end
           )
         end)
@@ -137,3 +147,5 @@ return function(opts)
     })
     :find()
 end
+
+return M
