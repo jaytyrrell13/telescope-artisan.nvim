@@ -7,7 +7,7 @@ local previewers = require('telescope.previewers')
 local action_state = require('telescope.actions.state')
 local entry_display = require('telescope.pickers.entry_display')
 local Path = require('plenary.path')
-local config = require('artisan.config')
+local strategies = require('artisan.strategies')
 
 local M = {}
 
@@ -24,20 +24,6 @@ local make_display = function(entry)
     entry.value.command,
     entry.value.description,
   })
-end
-
-local function runInTerminal(command)
-  vim.cmd('botright new')
-  vim.cmd('terminal php artisan ' .. command)
-  vim.cmd('startinsert')
-end
-
-local runCommand = function(command)
-  if config.opts.strategy == 'neovim' then
-    runInTerminal(command)
-  else
-    vim.notify('Unknown strategy "' .. config.opts.strategy .. '" for telescope-artisan.nvim', vim.log.levels.WARN)
-  end
 end
 
 M.run = function(opts)
@@ -121,7 +107,7 @@ M.run = function(opts)
           local selection = action_state.get_selected_entry()
           actions.close(bufnr)
 
-          runCommand(selection.value.command)
+          strategies.execute(selection.value.command)
 
           return true
         end
@@ -135,10 +121,10 @@ M.run = function(opts)
 
           vim.ui.input(
             { prompt = 'Enter arguments for "php artisan ' .. selection.value.command .. '": ' },
-            function(msg)
-              msg = msg or ''
-
-              runCommand(selection.value.command .. ' ' .. msg)
+            function(input)
+              if input then
+                strategies.execute(selection.value.command .. ' ' .. input)
+              end
             end
           )
         end)
